@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createItem } from './dynamo';
+import { createItem, updateItem } from './dynamo';
 import './App.scss';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,28 +15,66 @@ function App() {
   const [recipeName, setRecipeName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [recipes, setRecipes] = useState([]);
-  const [recipeToUpdate, setRecipeToUpdate] = useState({});
+  const [recipeToUpdate, setRecipeToUpdate] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState({});
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = (recipe = null) => {
+    if (recipe) {
+      setRecipeToUpdate(recipe);
+      setRecipeName(recipe.recipeName);
+      setIngredients(recipe.ingredients.join(', '));
+      setIsEditing(true);
+    } else {
+      setRecipeToUpdate(null);
+      setRecipeName('');
+      setIngredients('');
+      setIsEditing(false);
+    }
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setRecipeToUpdate(null);
+    setRecipeName('');
+    setIngredients('');
+    setIsEditing(false);
+  };
 
   const saveRecipe = async (event) => {
     event.preventDefault();
-    const newRecipe = {
-      Cake: Date.now().toString(), 
-      recipeName: recipeName,
-      ingredients: ingredients.split(',').map(item => item.trim()),
-    };
-    try {
-      await createItem('Recipies', newRecipe);
-      setRecipes(prevRecipes => [...prevRecipes, newRecipe]);
-      console.log('Recipe saved:', newRecipe);
-    } catch (error) {
-      console.error('Failed to create item in DynamoDB:', error);
+    if (isEditing && recipeToUpdate) {
+      const updatedRecipe = {
+        ...recipeToUpdate,
+        recipeName: recipeName,
+        ingredients: ingredients.split(',').map(item => item.trim()),
+      };
+      try {
+        await updateItem('Recipies', { Cake: updatedRecipe.Cake }, {
+          recipeName: updatedRecipe.recipeName,
+          ingredients: updatedRecipe.ingredients
+        });
+        setRecipes(prevRecipes => prevRecipes.map(r => r.Cake === updatedRecipe.Cake ? updatedRecipe : r));
+        console.log('Recipe updated:', updatedRecipe);
+      } catch (error) {
+        console.error('Failed to update item in DynamoDB:', error);
+      }
+    } else {
+      
+      const newRecipe = {
+        Cake: Date.now().toString(), 
+        recipeName: recipeName,
+        ingredients: ingredients.split(',').map(item => item.trim()),
+      };
+      try {
+        await createItem('Recipies', newRecipe);
+        setRecipes(prevRecipes => [...prevRecipes, newRecipe]);
+        console.log('Recipe saved:', newRecipe);
+      } catch (error) {
+        console.error('Failed to create item in DynamoDB:', error);
+      }
     }
-    setRecipeName('');
-    setIngredients('');
+    handleClose();
   };
    const handleDelete = async (Cake) => {
      setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.Cake !== Cake));
@@ -92,7 +130,8 @@ function App() {
               <div key={recipeObject.Cake} className="recipe-item">
                 <h3>{recipeObject.recipeName}</h3>
                 <p>Ingredients: {recipeObject.ingredients.join(', ')}</p>
-                <Button color="error" variant="outlined" onClick={() => handleDelete(recipeObject.Cake)} style={{marginTop: '0.5rem'}}>Delete Recipe</Button>
+                <Button color="primary" variant="outlined" onClick={() => handleOpen(recipeObject)} style={{marginRight: '0.5rem'}}>Update</Button>
+                <Button color="error" variant="outlined" onClick={() => handleDelete(recipeObject.Cake)} style={{marginTop: '0.5rem'}}>Delete</Button>
               </div>
             ))}
           </div>
@@ -127,7 +166,7 @@ function App() {
         className="form-control mb-2"
         required
       />
-  <button type="submit" className="btn btn-primary">Add Recipe</button>
+  <button type="submit" className="btn btn-primary">{isEditing ? 'Update Recipe' : 'Add Recipe'}</button>
     </form>
   </Box>
 </Modal>

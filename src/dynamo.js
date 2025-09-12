@@ -1,6 +1,31 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, ScanCommand, PutCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, ScanCommand, PutCommand, DeleteCommand, UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+
+export async function updateItem(tableName, key, updates) {
+  const command = new UpdateCommand({
+    TableName: tableName,
+    Key: key,
+    UpdateExpression: 'set ' + Object.keys(updates).map((k, i) => `#${k} = :${k}`).join(', '),
+    ExpressionAttributeNames: Object.keys(updates).reduce((acc, k) => { acc[`#${k}`] = k; return acc; }, {}),
+    ExpressionAttributeValues: Object.keys(updates).reduce((acc, k) => { acc[`:${k}`] = updates[k]; return acc; }, {}),
+    ReturnValues: 'ALL_NEW',
+  });
+  const result = await docClient.send(command);
+  return result.Attributes;
+}
+export async function listAllItems(tableName) {
+  const command = new ScanCommand({ TableName: tableName });
+  const result = await docClient.send(command);
+  return result.Items || [];
+}
+
+
+export async function getItem(tableName, key) {
+  const command = new GetCommand({ TableName: tableName, Key: key });
+  const result = await docClient.send(command);
+  return result.Item || null;
+}
 const REGION = import.meta.env.VITE_APP_AWS_REGION;
 const ACCESS_KEY_ID = import.meta.env.VITE_APP_AWS_ACCESS_KEY_ID; 
 const SECRET_ACCESS_KEY = import.meta.env.VITE_APP_AWS_SECRET_ACCESS_KEY; 
