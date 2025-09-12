@@ -16,7 +16,9 @@
     "@emotion/styled": "^11.14.1",
     "@iterable/web-sdk": "^2.2.0",
     "@mui/material": "^7.3.2",
+    "bootstrap": "^5.3.8",
     "react": "^19.1.1",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",
     "sass": "^1.92.1"
   },
