@@ -1,42 +1,58 @@
-import { useState } from 'react';
-// Assuming the createItem function is defined in './dynamo.js'
+import React, { useState } from 'react';
 import { createItem } from './dynamo';
 import './App.scss';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import { initialize } from '@iterable/web-sdk';
+
 
 function App() {
-  // State variables for the form inputs, matching the pet example's structure
+  React.useEffect(() => {
+    initialize({ apiKey: 'YOUR_API_KEY' });
+  }, []);
   const [recipeName, setRecipeName] = useState('');
   const [ingredients, setIngredients] = useState('');
-  // Add a state to store the list of recipes, similar to the `pets` state
   const [recipes, setRecipes] = useState([]);
+  const [recipeToUpdate, setRecipeToUpdate] = useState({});
+  const [recipeToDelete, setRecipeToDelete] = useState({});
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
-  // Adapt the handleAddPet function to handle adding recipes
   const saveRecipe = async (event) => {
-    // Prevents the page from reloading on form submission
     event.preventDefault();
-
-    // Create a new recipe object from the form's state
     const newRecipe = {
-      Id: Date.now().toString(), // Generate a unique ID
+      Cake: Date.now().toString(), 
       recipeName: recipeName,
-      ingredients: ingredients.split(',').map(item => item.trim()), // Split and clean the ingredient string
+      ingredients: ingredients.split(',').map(item => item.trim()),
     };
-
-    console.log(newRecipe);
-
     try {
-      // Call a database function to save the new recipe, assuming `createItem` works with DynamoDB
-      await createItem('RecipeBookTable', newRecipe);
-      // Update the local state to include the new recipe, similar to `setPets`
+      await createItem('Recipies', newRecipe);
       setRecipes(prevRecipes => [...prevRecipes, newRecipe]);
-      console.log('Recipe saved to DynamoDB.');
+      console.log('Recipe saved:', newRecipe);
     } catch (error) {
       console.error('Failed to create item in DynamoDB:', error);
     }
-
-    // Clear the form fields after submission
     setRecipeName('');
     setIngredients('');
+  };
+   const handleDelete = async (Cake) => {
+     setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.Cake !== Cake));
+   };
+
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
   };
 
   return (
@@ -44,27 +60,80 @@ function App() {
       <title>Recipe Book</title>
       <div className="card">
         <h1>Recipe Book</h1>
-        <form onSubmit={e => { e.preventDefault(); saveRecipe(); }} className="mb-3 text-center p-2 rounded">
+        <form onSubmit={saveRecipe} className="mb-3 text-center p-2 rounded">
           <input
             type="text"
-            placeholder="Enter recipe name"
+            placeholder="Enter recipe name..."
             value={recipeName}
             onChange={e => setRecipeName(e.target.value)}
             className="form-control mb-2"
             required
           />
+          <br />
           <textarea
-            placeholder="Enter ingredients"
+            placeholder="Enter ingredients (comma separated)..."
             value={ingredients}
             onChange={e => setIngredients(e.target.value)}
             className="form-control mb-2"
             required
           />
+          <br />
           <button type="submit" className="btn btn-primary">Add Recipe</button>
         </form>
-      </div>
+      </div >
+
+      <section>
+        <h2>Recipe List</h2>
+        {recipes.length === 0 ? (
+          <p>No recipes added yet.</p>
+        ) : (
+          <div className="recipe-list">
+            {recipes.map((recipeObject) => (
+              <div key={recipeObject.Cake} className="recipe-item">
+                <h3>{recipeObject.recipeName}</h3>
+                <p>Ingredients: {recipeObject.ingredients.join(', ')}</p>
+                <Button color="error" variant="outlined" onClick={() => handleDelete(recipeObject.Cake)} style={{marginTop: '0.5rem'}}>Delete Recipe</Button>
+              </div>
+            ))}
+          </div>
+        )}
+        <Button onClick={handleOpen}>Update Recipe</Button>
+<Modal
+  open={open}
+  onClose={handleClose}
+  aria-labelledby="modal-modal-title"
+  aria-describedby="modal-modal-description"
+>
+  <Box sx={style}>
+    <Typography id="modal-modal-title" variant="h6" component="h2">
+      Text in a modal
+    </Typography>
+    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+      {}
+    </Typography>
+    <form onSubmit={saveRecipe} className="mb-3 text-center p-2 rounded">
+      <input
+        type="text"
+        placeholder="Enter recipe name..."
+        value={recipeName}
+        onChange={e => setRecipeName(e.target.value)}
+        className="form-control mb-2"
+        required
+      />
+      <textarea
+        placeholder="Enter ingredients (comma separated)..."
+        value={ingredients}
+        onChange={e => setIngredients(e.target.value)}
+        className="form-control mb-2"
+        required
+      />
+  <button type="submit" className="btn btn-primary">Add Recipe</button>
+    </form>
+  </Box>
+</Modal>
+      </section>
     </>
   );
-}
 
+}
 export default App;

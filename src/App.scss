@@ -1,0 +1,85 @@
+// Modern SCSS for CookBook App
+
+$primary: #1976d2;
+$accent: #ff9800;
+$background: #540707;
+$card-bg: #fff;
+$border-radius: 12px;
+$box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+
+body {
+	background: $background;
+	font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+	color: #222;
+}
+
+.card {
+	background: $card-bg;
+	border-radius: $border-radius;
+	box-shadow: $box-shadow;
+	padding: 2rem;
+	max-width: 500px;
+	margin: 2rem auto;
+	text-align: center;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+input, textarea {
+	padding: 0.75rem 1rem;
+	border: 1px solid #ddd;
+	border-radius: $border-radius;
+	font-size: 1rem;
+	background: #fafbfc;
+	transition: border-color 0.2s;
+	&:focus {
+		border-color: $primary;
+		outline: none;
+	}
+}
+
+button {
+	background: $primary;
+	color: #fff;
+	border: none;
+	border-radius: $border-radius;
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+	&:hover {
+		background: darken($primary, 10%);
+	}
+	&.btn-primary {
+		background: $primary;
+	}
+	&.btn-accent {
+		background: $accent;
+	}
+}
+
+.recipe-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	margin-top: 2rem;
+}
+
+.recipe-item {
+	background: #fafbfc;
+	border-radius: $border-radius;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+	padding: 1rem 1.5rem;
+	text-align: left;
+}
+
+// Modal styles (MUI overrides)
+.MuiModal-root .MuiBox-root {
+	background: $card-bg !important;
+	border-radius: $border-radius !important;
+	box-shadow: $box-shadow !important;
+}
