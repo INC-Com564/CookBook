@@ -19,6 +19,9 @@ function App() {
   const [isEditing, setIsEditing] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState({});
   const [open, setOpen] = useState(false);
+
+// ---------------------------------------------------------------------------//
+
   const handleOpen = (recipe = null) => {
     if (recipe) {
       setRecipeToUpdate(recipe);
@@ -93,6 +96,8 @@ function App() {
     p: 4,
   };
 
+// --------------------------------------------------------------------------------------//
+
   return (
     <>
       <title>Recipe Book</title>
@@ -119,7 +124,7 @@ function App() {
           <button type="submit" className="btn btn-primary">Add Recipe</button>
         </form>
       </div >
-
+// ---------------------------------------------------------------------------------//
       <section>
         <h2>Recipe List</h2>
         {recipes.length === 0 ? (
@@ -145,7 +150,6 @@ function App() {
 >
   <Box sx={style}>
     <Typography id="modal-modal-title" variant="h6" component="h2">
-      Text in a modal
     </Typography>
     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
       {}

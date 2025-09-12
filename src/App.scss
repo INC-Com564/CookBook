@@ -1,6 +1,4 @@
-// Modern SCSS for CookBook App
-
-$primary: #1976d2;
+$primary: #1957d2;
 $accent: #ff9800;
 $background: #540707;
 $card-bg: #fff;
@@ -77,7 +75,7 @@ button {
 	text-align: left;
 }
 
-// Modal styles (MUI overrides)
+
 .MuiModal-root .MuiBox-root {
 	background: $card-bg !important;
 	border-radius: $border-radius !important;
