@@ -141,7 +141,7 @@ function App() {
             ))}
           </div>
         )}
-        <Button onClick={handleOpen}>Update Recipe</Button>
+        
 <Modal
   open={open}
   onClose={handleClose}

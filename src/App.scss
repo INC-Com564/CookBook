@@ -25,6 +25,8 @@ form {
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
+    padding: 1%;
+    border: black;
 }
 
 input, textarea {
@@ -65,10 +67,11 @@ button {
 	flex-direction: column;
 	gap: 1.5rem;
 	margin-top: 2rem;
+    color: #000;
 }
 
 .recipe-item {
-	background: #fafbfc;
+	background: #151516;
 	border-radius: $border-radius;
 	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 	padding: 1rem 1.5rem;
