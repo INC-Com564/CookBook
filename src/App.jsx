@@ -79,6 +79,7 @@ function App() {
     }
     handleClose();
   };
+
    const handleDelete = async (Cake) => {
      setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.Cake !== Cake));
    };
@@ -136,6 +137,7 @@ function App() {
                 <h3>{recipeObject.recipeName}</h3>
                 <p>Ingredients: {recipeObject.ingredients.join(', ')}</p>
                 <Button color="primary" variant="outlined" onClick={() => handleOpen(recipeObject)} style={{marginRight: '0.5rem'}}>Update</Button>
+                <Button onClick={saveRecipe}>Save</Button>
                 <Button color="error" variant="outlined" onClick={() => handleDelete(recipeObject.Cake)} style={{marginTop: '0.5rem'}}>Delete</Button>
               </div>
             ))}

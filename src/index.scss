@@ -1,45 +1,49 @@
-
 * {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-	background: #f5f7fa;
-	font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-	color: #222;
-	min-height: 100vh;
-	line-height: 1.6;
+  background: #f5f7fa;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  color: #222;
+  min-height: 100vh;
+  line-height: 1.6;
 }
-section{
-    background-color: #f5f7fa;
-    text-align: center;
-    box-sizing: border-box;
-	padding: 10%;
-    border: #222;
-    border-radius: 10%;
-    width: 50%; 
-    max-width: 900px; 
-    margin: 0 auto;   
+section {
+  background-color: #f5f7fa;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 10%;
+  border: #222;
+  border-radius: 10%;
+  width: 50%;
+  max-width: 900px;
+  margin: 0 auto;
 }
-h1, h2, h3, h4, h5, h6 {
-	font-weight: 600;
-    font-family: 'Courier New', Courier, monospace;
-	color: #068e1f;
-	margin-bottom: 1rem;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  font-family: "Courier New", Courier, monospace;
+  color: #068e1f;
+  margin-bottom: 1rem;
 }
 
 a {
-	color: #0b6aa1;
-	text-decoration: none;
-	transition: color 0.2s;
-	&:hover {
-		color: #ff9800;
-	}
+  color: #0b6aa1;
+  text-decoration: none;
+  transition: color 0.2s;
+  &:hover {
+    color: #ff9800;
+  }
 }
 p {
-    color: #ffffff;
-    font-size: medium;
-    font-family: 'Courier New', Courier, monospace;
+  color: #ffffff;
+  font-size: medium;
+  font-family: "Courier New", Courier, monospace;
 }
