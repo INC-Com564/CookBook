@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { createItem, updateItem } from './dynamo';
+import React, { useState, useEffect } from 'react';
+import { createItem, updateItem, functionThatScansRecipes, deleteItemByKey } from './dynamo'; 
+import { v4 as uuidv4 } from 'uuid'; 
 import './App.scss';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -7,20 +8,31 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { initialize } from '@iterable/web-sdk';
 
-
 function App() {
-  React.useEffect(() => {
+  useEffect(() => {
     initialize({ apiKey: 'YOUR_API_KEY' });
   }, []);
+
   const [recipeName, setRecipeName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [recipes, setRecipes] = useState([]);
   const [recipeToUpdate, setRecipeToUpdate] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [recipeToDelete, setRecipeToDelete] = useState({});
   const [open, setOpen] = useState(false);
 
-// ---------------------------------------------------------------------------//
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const data = await functionThatScansRecipes(); 
+        setRecipes(data);
+      } catch (error) {
+        console.error('Failed to fetch recipes:', error);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
 
   const handleOpen = (recipe = null) => {
     if (recipe) {
@@ -36,6 +48,7 @@ function App() {
     }
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
     setRecipeToUpdate(null);
@@ -55,7 +68,7 @@ function App() {
       try {
         await updateItem('Recipies', { Cake: updatedRecipe.Cake }, {
           recipeName: updatedRecipe.recipeName,
-          ingredients: updatedRecipe.ingredients
+          ingredients: updatedRecipe.ingredients,
         });
         setRecipes(prevRecipes => prevRecipes.map(r => r.Cake === updatedRecipe.Cake ? updatedRecipe : r));
         console.log('Recipe updated:', updatedRecipe);
@@ -65,7 +78,7 @@ function App() {
     } else {
       
       const newRecipe = {
-        Cake: Date.now().toString(), 
+        Cake: uuidv4(), 
         recipeName: recipeName,
         ingredients: ingredients.split(',').map(item => item.trim()),
       };
@@ -81,9 +94,13 @@ function App() {
   };
 
    const handleDelete = async (Cake) => {
-     setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.Cake !== Cake));
+     try {
+       await deleteItemByKey('Recipies', { Cake }); 
+       setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.Cake !== Cake));
+     } catch (error) {
+       console.error('Failed to delete item from DynamoDB:', error);
+     }
    };
-
 
   const style = {
     position: 'absolute',
@@ -97,35 +114,16 @@ function App() {
     p: 4,
   };
 
-// --------------------------------------------------------------------------------------//
-
   return (
     <>
       <title>Recipe Book</title>
       <div className="card">
         <h1>Recipe Book</h1>
-        <form onSubmit={saveRecipe} className="mb-3 text-center p-2 rounded">
-          <input
-            type="text"
-            placeholder="Enter recipe name..."
-            value={recipeName}
-            onChange={e => setRecipeName(e.target.value)}
-            className="form-control mb-2"
-            required
-          />
-          <br />
-          <textarea
-            placeholder="Enter ingredients (comma separated)..."
-            value={ingredients}
-            onChange={e => setIngredients(e.target.value)}
-            className="form-control mb-2"
-            required
-          />
-          <br />
-          <button type="submit" className="btn btn-primary">Add Recipe</button>
-        </form>
+        <Button onClick={() => handleOpen()} variant="contained" style={{marginBottom: '1rem'}}>
+          Add New Recipe
+        </Button>
       </div >
-// ---------------------------------------------------------------------------------//
+
       <section>
         <h2>Recipe List</h2>
         {recipes.length === 0 ? (
@@ -137,7 +135,6 @@ function App() {
                 <h3>{recipeObject.recipeName}</h3>
                 <p>Ingredients: {recipeObject.ingredients.join(', ')}</p>
                 <Button color="primary" variant="outlined" onClick={() => handleOpen(recipeObject)} style={{marginRight: '0.5rem'}}>Update</Button>
-                <Button onClick={saveRecipe}>Save</Button>
                 <Button color="error" variant="outlined" onClick={() => handleDelete(recipeObject.Cake)} style={{marginTop: '0.5rem'}}>Delete</Button>
               </div>
             ))}
@@ -151,10 +148,7 @@ function App() {
   aria-describedby="modal-modal-description"
 >
   <Box sx={style}>
-    <Typography id="modal-modal-title" variant="h6" component="h2"> Recipes
-    </Typography>
-    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-      {}
+    <Typography id="modal-modal-title" variant="h6" component="h2"> {isEditing ? 'Update Recipe' : 'Add Recipe'}
     </Typography>
     <form onSubmit={saveRecipe} className="mb-3 text-center p-2 rounded">
       <input
@@ -172,13 +166,13 @@ function App() {
         className="form-control mb-2"
         required
       />
-  <button type="submit" className="btn btn-primary">{isEditing ? 'Update Recipe' : 'Add Recipe'}</button>
+      <Button type="submit" variant="contained">{isEditing ? 'Update Recipe' : 'Add Recipe'}</Button>
     </form>
   </Box>
 </Modal>
       </section>
     </>
   );
-
 }
+
 export default App;
